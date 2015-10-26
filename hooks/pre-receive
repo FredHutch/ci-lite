@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+from, to, ref = ARGF.read.split " "
+if ( ref =~ /refs\/tags/ ) == 0
+    
+    # check tag for validity and increasing value
+    req_tag = ref.split('refs/tags/')[1]
+
+    # does it follow semantic versioning
+    SemVerRegexp = /\A(\d+\.\d+\.\d+)(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?\Z/
+    if ( req_tag =~ SemVerRegexp ) == nil
+        abort( "CLITE: tag #{req_tag} does not follow semantic versioning standard" )
+    end
+
+    # check for existing tag
+    tags = `git --git-dir=$GIT_DIR tag`
+    if tags.include?(req_tag)
+        abort( "CLITE: tag #{req_tag} already exists in the repository" )
+    end
+
+    puts "CLITE: pre-flight checks cleared"
+end
+
+

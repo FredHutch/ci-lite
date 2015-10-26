@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# post-receive
+
+# 1. Read STDIN (Format: "from_commit to_commit branch_name")
+from, to, ref = ARGF.read.split " "
+
+puts "DEBUG: CLITE: #{ref}"
+
+if (ref =~ /prod$/) >= 0
+    puts "CLITE: pushing #{ref} to upstream (github)"
+    result = `git push origin #{ref}`
+    puts "DEBUG: CLITE: #{result}"
+end
+
+if ( ref =~ /refs\/tags/ ) == 0
+    puts "CLITE: pushing new tag reference #{ref}"
+    result = `git push --tags`
+    puts "DEBUG: CLITE: #{result}"
+end
+
+# 3. Copy files to deploy directory
+deploy_to_dir = File.expand_path('/var/tmp')
+puts "DEPLOY: dev(#{to}) copied to '#{deploy_to_dir}'"
+
+# 4.TODO: Deployment Tasks
+# i.e.: Run Puppet Apply, Restart Daemons, etc
