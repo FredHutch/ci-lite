@@ -1,23 +1,55 @@
-#!/usr/bin/env ruby
-from, to, ref = ARGF.read.split " "
-if ( ref =~ /refs\/tags/ ) == 0
-    
-    # check tag for validity and increasing value
-    req_tag = ref.split('refs/tags/')[1]
+#!/bin/bash
+# 
+# Check version of role and environment cookbooks if changed
+#
+set -e
 
-    # does it follow semantic versioning
-    SemVerRegexp = /\A(\d+\.\d+\.\d+)(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?\Z/
-    if ( req_tag =~ SemVerRegexp ) == nil
-        abort( "CLITE: tag #{req_tag} does not follow semantic versioning standard" )
-    end
+check_version()
+{
+    cbk=$1
+    from=$2
+    to=$3
+    echo "Checking ${cbk} recipe"
+    changed=$(git diff --name-only $from $to -- cookbooks/${cbk}/recipes/*.rb | wc -l)
 
-    # check for existing tag
-    tags = `git --git-dir=$GIT_DIR tag`
-    if tags.include?(req_tag)
-        abort( "CLITE: tag #{req_tag} already exists in the repository" )
-    end
+    if [ $changed -gt 0 ]
+    then
+        # Check version against installed in chef server
+        vers=$(awk -F\' '/^version/{print $2}' cookbooks/${cbk}/metadata.rb )
+        found=$(knife cookbook show ${cbk} |grep $vers)
+        if [ "$found" != "" ]
+        then
+            echo "CLITE: error: found uploaded cookbook with same version"
+            echo "CLITE: error: check ${cbk} cookbook version and try again"
+            return 1
+        else
+            echo "CLITE: ${cbk} changed and versioned- cookbook ok for upload"
+            return 0
+        fi
+    else
+        echo "CLITE: no changes to ${cbk} cookbook"
+        return 0
+    fi
 
-    puts "CLITE: pre-flight checks cleared"
-end
+}
 
+cd ..
+export GIT_DIR=".git"
 
+read line
+commit=($line)
+from=${commit[0]}
+to=${commit[1]}
+ref=${commit[2]}
+
+echo "CLITE: checking diff between $from and $to with commit ref $ref"
+echo "DEBUG: ${PWD}"
+for cookbook in roles environment
+do
+    check_version $cookbook $from $to
+    if [ $? != 0 ]
+    then
+        echo "CLITE: commit failed" >&2
+        exit 1
+    fi
+done
