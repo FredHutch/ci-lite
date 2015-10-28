@@ -36,5 +36,5 @@ fi
 echo "CILITE: uploading to chef server"
 
 cd policy-repo
-knife upload 
+knife upload .
 

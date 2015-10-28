@@ -3,6 +3,7 @@
 # Check version of role and environment cookbooks if changed
 #
 set -e
+set -x
 
 check_version()
 {
@@ -10,13 +11,13 @@ check_version()
     from=$2
     to=$3
     echo "Checking ${cbk} recipe"
-    changed=$(git diff --name-only $from $to -- cookbooks/${cbk}/recipes/*.rb | wc -l)
+    changed=$(git diff --name-only $from $to -- cookbooks/${cbk}/metadata.rb cookbooks/${cbk}/recipes | wc -l)
 
     if [ $changed -gt 0 ]
     then
         # Check version against installed in chef server
-        vers=$(awk -F\' '/^version/{print $2}' cookbooks/${cbk}/metadata.rb )
-        found=$(knife cookbook show ${cbk} |grep $vers)
+        vers=$(git show ${to}:cookbooks/${cbk}/metadata.rb | awk -F\' '/^version/{print $2}' )
+        found=$(knife cookbook show ${cbk} |grep $vers || true )
         if [ "$found" != "" ]
         then
             echo "CLITE: error: found uploaded cookbook with same version"
