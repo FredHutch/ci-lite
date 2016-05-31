@@ -1,0 +1,35 @@
+machine:
+    services:
+        - docker
+dependencies:
+    cache_directories:
+        - ~/assets
+    pre:
+        - mkdir ~/assets || exit 0;
+        - if ! chef -v ; then
+          if ! [ -f ~/assets/chefdk_0.13.21-1_amd64.deb ] ; then
+          wget -O ~/assets/chefdk_0.13.21-1_amd64.deb https://packages.chef.io/stable/ubuntu/12.04/chefdk_0.13.21-1_amd64.deb;
+          fi;
+          sudo dpkg --install ~/assets/chefdk_0.13.21-1_amd64.deb;
+          fi;
+        - chef gem install specific_install
+        - sudo chef gem specific_install kitchen-docker -l http://github.com/peterabbott/kitchen-docker.git -b v2.4.0
+        - sudo chef gem uninstall chefspec
+        - chef gem install chefspec:4.7.0
+        - mkdir ~/.chef
+        - cp ~/${CIRCLE_PROJECT_REPONAME}/.circleci/knife.rb ~/.chef/knife.rb
+test:
+    override:
+        - chef exec berks install
+        - chef exec rspec -P spec/**/*_spec.rb --tty --color
+        - chef exec foodcritic . -X spec -f any -t ~FC003
+        - chef exec kitchen test
+
+deployment:
+    production:
+        branch: prod
+        commands:
+            - pwd
+            - cd .. && tar cf ~/assets/${CIRCLE_PROJECT_REPONAME}.tar.gz ${CIRCLE_PROJECT_REPONAME}
+            - scp -P ${KNIFE_SSH_PORT} ~/assets/${CIRCLE_PROJECT_REPONAME}.tar.gz ${KNIFE_USER}@${KNIFE_WORKSTATION}:cookbooks/
+            - ssh -p ${KNIFE_SSH_PORT:-22} ${KNIFE_USER}@${KNIFE_WORKSTATION} ${DEPLOY_CMD}

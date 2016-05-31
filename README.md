@@ -1,18 +1,17 @@
 # CI-Lite
 
-> Lightweight CI for Chef using the R10K "push and go" model
+This branch contains helpers and configuration files for
+deploying and testing via CircleCI.
 
-Implements a workflow inspired by r10k where pushing to a branch causes an update of the Chef policy repository using git server-side hooks.
+This method uses ssh to a knife workstation with access to the Chef and Supermarket server
 
-On a push to the production branch, the hooks perform the following actions:
+Environment Variables
 
-1. Pre-receive:
-    > 1. check ref for tag
-    > 1. if ref is a tag, ensure follows semantic versioning
-    > 1. ensure tag does not exist in repo
+Install these using Circle CI's "Environment Variables"
 
-1. Post-recieve:
-    > 1. if ref is a branch named production, push upstream to github
-    > 1. if the ref is a tag, push tags upstream 
-    > 1. deploy policy repo to chef server (TBD)
+- `KNIFE_WORKSTATION`: hostname of workstation with access
+- `KNIFE_SSH_PORT`: port that SSH listens on
+- `KNIFE_USER`: username to use for access- must be able to upload cookbooks
+- `CHEF_SERVER_URL`: URL for access to the Chef server
+- `SUPERMARKET_URL`: 
 
