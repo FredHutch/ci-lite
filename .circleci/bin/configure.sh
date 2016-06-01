@@ -3,6 +3,14 @@
 
 endpoint="https://circleci.com/api/v1"
 
+# Read in from file if argument is specified, otherwise hope stuff is
+# in the environment
+
+if [ -f ${1} ] 
+then
+    . ${1}
+fi
+
 curl -s -X POST \
     --header "Content-Type: application/json" \
     -d '{"name":"DEPLOY_CMD", "value":"chef-client -o 'recipe[kwik-e-mart::upload]' -c /var/spool/btb/.chef/client.rb"}' \
