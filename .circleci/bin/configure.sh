@@ -1,13 +1,7 @@
-#!/bin/bash -x
+#!/bin/bash
 # configure CircleCI project environment variables
 
-# DEPLOY_CMD: chef-client -o 'recipe[kwik-e-mart::upload]' -c /var/spool/btb/.chef/client.rb
-# KNIFE_SSH_PORT
-# KNIFE_USER
-# KNIFE_WORKSTATION
-
 endpoint="https://circleci.com/api/v1"
-username=FredHutch
 
 curl -s -X POST \
     --header "Content-Type: application/json" \
