@@ -7,11 +7,16 @@ This method uses ssh to a knife workstation with access to the Chef and Supermar
 
 # Installing
 
-Install from releases created by generating a tag on this branch.  The
-command:
+Install from releases created by generating a tag on this branch. Until this repository goes public, its necessary to use the API and your credentials and/or tokens to download.
 
-    wget -O - https://github.com/FredHutch/ci-lite/archive/<version>.tar.gz \
-    | tar --strip-components=1 -xzvf -
+A command of the form:
+
+```
+curl -L \
+--header 'Authorization: token <access token>' \
+https://api.github.com/repos/FredHutch/ci-lite/tarball/1.0.7 |\
+tar --strip-components=1 -xzvf -
+```
 
 will then extract `circle.yml` and `.circleci` into the current directory- use
 the root of your cookbook to put these files in the correct location.  These
