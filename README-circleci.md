@@ -24,20 +24,20 @@ circle ci build project.  The script `.circleci/bin/configure.sh` will set
 these environment variables.  The script is run in this manner:
 
 ```
-ssh_key=/path/to/id_rsa \
-username=FredHutch \
-project=scicomp-roles \
-token=<api token from your account> \
-KNIFE_WORKSTATION=<hostname to shell into> \
-KNIFE_SSH_PORT=<tcp port that ssh listens on> \
-KNIFE_USER=<username of user on knife workstation> \
-./configure.sh
+variable=value [...] ./configure.sh
 ```
 
-alternately pass in the path to a file with those variables configured as an argument to the script:
+you may pass in the path to a file with those variables configured as an
+argument to the script:
 
 ```
 ./configure /path/to/variables.sh
+```
+
+or combine them as:
+
+```
+variable=value [...] ./configure /path/to/variables.sh
 ```
 
 ## Variables
@@ -52,7 +52,7 @@ These are used to configure Circle CI with the environment variables necessary
 to run the deploy.  These will be written into the project's environment
 variables.
 
-- `ssh_key`: path to a file with a private key for knife workstation access
+- `ssh_key_file`: path to a file with a private key for knife workstation access
 - `KNIFE_WORKSTATION`: hostname of workstation with access
 - `KNIFE_SSH_PORT`: port that SSH listens on
 - `KNIFE_USER`: username to use for access- must be able to upload cookbooks
