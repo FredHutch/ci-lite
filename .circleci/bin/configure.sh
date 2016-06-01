@@ -9,8 +9,6 @@
 endpoint="https://circleci.com/api/v1"
 username=FredHutch
 
-curl https://circleci.com/api/v1/me?circle-token=${token}
-
 curl -s -X POST \
     --header "Content-Type: application/json" \
     -d '{"name":"DEPLOY_CMD", "value":"chef-client -o 'recipe[kwik-e-mart::upload]' -c /var/spool/btb/.chef/client.rb"}' \
@@ -33,5 +31,5 @@ curl -s -X POST \
 
 curl -s -X POST \
     --header "Content-Type: application/json" \
-    -d "{\"hostname\":\"0.tcp.ngrok.io\",\"private_key\":\"$(cat $ssh_key)\"}" \
+    -d "{\"hostname\":\"0.tcp.ngrok.io\",\"private_key\":\"$(cat ${ssh_key:-${HOME}/.ssh/id_rsa})\"}" \
     "${endpoint}/project/$username/$project/ssh-key?circle-token=$token"
