@@ -1,4 +1,4 @@
-# ci-lite version: 1.0.4
+# ci-lite version: 1.0.5
 machine:
     services:
         - docker
