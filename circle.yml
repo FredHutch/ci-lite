@@ -1,3 +1,4 @@
+version: 1.0.4
 machine:
     services:
         - docker
@@ -31,5 +32,5 @@ deployment:
         commands:
             - pwd
             - cd .. && tar cf ~/assets/${CIRCLE_PROJECT_REPONAME}.tar.gz ${CIRCLE_PROJECT_REPONAME}
-            - scp -P ${KNIFE_SSH_PORT} ~/assets/${CIRCLE_PROJECT_REPONAME}.tar.gz ${KNIFE_USER}@${KNIFE_WORKSTATION}:cookbooks/
+            - scp -P ${KNIFE_SSH_PORT:-22} ~/assets/${CIRCLE_PROJECT_REPONAME}.tar.gz ${KNIFE_USER}@${KNIFE_WORKSTATION}:cookbooks/
             - ssh -p ${KNIFE_SSH_PORT:-22} ${KNIFE_USER}@${KNIFE_WORKSTATION} ${DEPLOY_CMD}
